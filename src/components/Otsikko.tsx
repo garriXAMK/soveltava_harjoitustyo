@@ -11,7 +11,7 @@ function Otsikko({ children, tyyli }: Props) {
       sx={{
         fontSize: tyyli === 'pieni' ? 18 : 22,
         marginTop: '10px',
-        marginBottom: '10px',
+        marginBottom: '30px',
       }}
     >
       {children}

@@ -1,43 +1,67 @@
-import { Container, CssBaseline } from '@mui/material';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Route, Routes } from 'react-router';
+import { Container, CssBaseline } from '@mui/material';
 import Otsikko from './components/Otsikko';
-import PoistaTehtava from './components/PoistaTehtava';
-import Tehtavalista from './components/Tehtavalista';
-import UusiTehtava from './components/UusiTehtava';
+import PoistaHavainto from './components/PoistaHavainto';
+import Havaintolista from './components/Havaintolista';
+import UusiHavainto from './components/UusiHavainto';
+import MuokkaaHavaintoa from './components/MuokkaaHavaintoa';
 
-interface Tehtava {
-  nimi: string;
-  tehty: boolean;
-}
 
 function App() {
 
-  const [tehtavat, setTehtavat] = useState<Tehtava[]>([
-    { nimi: 'Käy kaupassa', tehty: false },
-    { nimi: 'Siivoa', tehty: true },
-    { nimi: 'Ulkoiluta koiraa', tehty: false },
-  ]);
+  const kaynnistetty = useRef(false);
+  const [havainnot, setHavainnot] = useState<Havainto[]>([]);
+
+  // Ensimmäisen kerran käynnistys
+  useEffect(() => {
+
+    if (!kaynnistetty.current) {
+
+      if (localStorage.getItem("havaintolista")) {
+
+        setHavainnot(JSON.parse(String(localStorage.getItem("havaintolista"))).map((havainto: Havainto) => {
+          return {
+            ...havainto
+          }
+        }));
+      }
+    }
+
+    return () => {
+      kaynnistetty.current = true;
+    }
+  }, []);
+
+  // Havaintolistan päivittyessä lähetetään uudet tiedot selaimen paikalliseen muistiin
+  useEffect(() => {
+
+    localStorage.setItem("havaintolista", JSON.stringify(havainnot));
+  }, [havainnot])
 
   return (
     <>
       <CssBaseline />
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
 
-        <Otsikko>Demo 6: Reititysparametrit</Otsikko>
+        <Otsikko>Lintuhavainnot</Otsikko>
 
         <Routes>
           <Route
-            path="/poista/:indeksi"
-            element={<PoistaTehtava tehtavat={tehtavat} setTehtavat={setTehtavat} />}
+            path="/poista/:id"
+            element={<PoistaHavainto havainnot={havainnot} setHavainnot={setHavainnot} />}
+          />
+          <Route
+            path="/muokkaa/:id"
+            element={<MuokkaaHavaintoa havainnot={havainnot} setHavainnot={setHavainnot} />}
           />
           <Route
             path="/uusi"
-            element={<UusiTehtava tehtavat={tehtavat} setTehtavat={setTehtavat} />}
+            element={<UusiHavainto havainnot={havainnot} setHavainnot={setHavainnot} />}
           />
           <Route
             path="/"
-            element={<Tehtavalista tehtavat={tehtavat} setTehtavat={setTehtavat} />}
+            element={<Havaintolista havainnot={havainnot} setHavainnot={setHavainnot} />}
           />
         </Routes>
 
