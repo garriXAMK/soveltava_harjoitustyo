@@ -1,20 +1,9 @@
 import { Typography } from '@mui/material';
 
-interface Props {
-  children: React.ReactNode;
-  tyyli?: 'pieni';
-}
-
-function Otsikko({ children, tyyli }: Props) {
+function Otsikko() {
   return (
-    <Typography
-      sx={{
-        fontSize: tyyli === 'pieni' ? 18 : 22,
-        marginTop: '10px',
-        marginBottom: '30px',
-      }}
-    >
-      {children}
+    <Typography variant="h3" component="h1" sx={{ mt: 3, mb: 3 }}>
+      Treenipäiväkirja
     </Typography>
   );
 }

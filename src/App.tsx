@@ -1,72 +1,58 @@
-import { useState, useRef, useEffect } from 'react';
-import { Route, Routes } from 'react-router';
-import { Container, CssBaseline } from '@mui/material';
-import Otsikko from './components/Otsikko';
-import PoistaHavainto from './components/PoistaHavainto';
-import Havaintolista from './components/Havaintolista';
-import UusiHavainto from './components/UusiHavainto';
-import MuokkaaHavaintoa from './components/MuokkaaHavaintoa';
+import { useState, useEffect } from 'react';
+import { Container } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router';
 
+import Otsikko from './components/Otsikko';
+import Treenilista from './sivut/Treenilista';
+import UusiTreeni from './sivut/UusiTreeni';
+import MuokkaaTreenia from './sivut/MuokkaaTreenia';
+import PoistaTreeni from './sivut/PoistaTreeni';
+
+import type { Treeni } from './types';
 
 function App() {
+  const [treenit, setTreenit] = useState<Treeni[]>(() => {
+  const tallennetutTreenit = localStorage.getItem("treenit");
 
-  const kaynnistetty = useRef(false);
-  const [havainnot, setHavainnot] = useState<Havainto[]>([]);
+  if (tallennetutTreenit) {
+    return JSON.parse(tallennetutTreenit);
+  }
 
-  // Ensimmäisen kerran käynnistys
-  useEffect(() => {
+  return [];
+});
 
-    if (!kaynnistetty.current) {
-
-      if (localStorage.getItem("havaintolista")) {
-
-        setHavainnot(JSON.parse(String(localStorage.getItem("havaintolista"))).map((havainto: Havainto) => {
-          return {
-            ...havainto
-          }
-        }));
-      }
-    }
-
-    return () => {
-      kaynnistetty.current = true;
-    }
-  }, []);
-
-  // Havaintolistan päivittyessä lähetetään uudet tiedot selaimen paikalliseen muistiin
-  useEffect(() => {
-
-    localStorage.setItem("havaintolista", JSON.stringify(havainnot));
-  }, [havainnot])
+useEffect(() => {
+  localStorage.setItem("treenit", JSON.stringify(treenit));
+}, [treenit]);
 
   return (
-    <>
-      <CssBaseline />
+    <BrowserRouter>
       <Container maxWidth="md">
-
-        <Otsikko>Lintuhavainnot</Otsikko>
+        <Otsikko />
 
         <Routes>
           <Route
-            path="/poista/:id"
-            element={<PoistaHavainto havainnot={havainnot} setHavainnot={setHavainnot} />}
+            path="/"
+            element={<Treenilista treenit={treenit} />}
           />
-          <Route
-            path="/muokkaa/:id"
-            element={<MuokkaaHavaintoa havainnot={havainnot} setHavainnot={setHavainnot} />}
-          />
+
           <Route
             path="/uusi"
-            element={<UusiHavainto havainnot={havainnot} setHavainnot={setHavainnot} />}
+            element={<UusiTreeni treenit={treenit} setTreenit={setTreenit} />}
           />
+
           <Route
-            path="/"
-            element={<Havaintolista havainnot={havainnot} setHavainnot={setHavainnot} />}
+            path="/muokkaa/:id"
+            element={<MuokkaaTreenia treenit={treenit} setTreenit={setTreenit} />}
+          />
+
+          <Route
+            path="/poista/:id"
+            element={<PoistaTreeni treenit={treenit} setTreenit={setTreenit} />}
           />
         </Routes>
-
       </Container>
-    </>
+    </BrowserRouter>
   );
 }
 
